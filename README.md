@@ -1,6 +1,8 @@
 # Transmission Exporter for Prometheus
 
-Prometheus exporter for [Transmission](https://transmissionbt.com/) metrics, written in Go.  This is a fork of Metalmatze's tranmission exporter. I fixed a few things and removed others to make my life easier.
+This is a fork of Metalmatze's tranmission exporter. A few things were fixed and others removed to make my life easier.
+
+Prometheus exporter for [Transmission](https://transmissionbt.com/) metrics, written in Go.  
 
 ## Changes done
 - The [Dockerfile](./Dockerfile) was changed to build the transmission-exporter binary during `docker build` step. Previously it seems it the Go binary was expected to be build outside the Dockerfile 
