@@ -5,7 +5,7 @@ This is a fork of Metalmatze's tranmission exporter. A few things were fixed and
 Prometheus exporter for [Transmission](https://transmissionbt.com/) metrics, written in Go.  
 
 ## Changes done on this fork
-- The [Dockerfile](./Dockerfile) was changed to build the transmission-exporter binary during `docker build` step. Previously it seems it the Go binary was expected to be build outside the Dockerfile 
+- The [Dockerfile](./Dockerfile) was changed to build the transmission-exporter binary during `docker build` step. Previously it seems the Go binary was expected to be built outside the Dockerfile 
 - Removed .env support -- now only environment variables can be used to configure the exporter
 - Added some debugging and an argument check on [main.go](./cmd/transmission-exporter/main.go) 'cause I mess up environment variables sometimes 
 
