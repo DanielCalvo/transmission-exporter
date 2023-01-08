@@ -1,13 +1,12 @@
 package main
 
 import (
-	"log"
-	"net/http"
-
 	arg "github.com/alexflint/go-arg"
-	"github.com/joho/godotenv"
 	transmission "github.com/metalmatze/transmission-exporter"
 	"github.com/prometheus/client_golang/prometheus"
+	"log"
+	"net/http"
+	"strings"
 )
 
 // Config gets its content from env and passes it on to different packages
@@ -22,18 +21,17 @@ type Config struct {
 func main() {
 	log.Println("starting transmission-exporter")
 
-	err := godotenv.Load()
-	if err != nil {
-		log.Println("no .env present")
-	}
-
 	c := Config{
 		WebPath:          "/metrics",
 		WebAddr:          ":19091",
 		TransmissionAddr: "http://localhost:9091",
 	}
 
-	arg.MustParse(&c)
+	arg.MustParse(&c) //Gets config from the environment
+
+	if !strings.HasPrefix(c.TransmissionAddr, "http://") { //Making sure I don't make this mistake again
+		log.Fatal("env:TRANSMISSION_ADDR must begin with http:// for Golang to be able to create a http request")
+	}
 
 	var user *transmission.User
 	if c.TransmissionUsername != "" && c.TransmissionPassword != "" {
@@ -42,6 +40,10 @@ func main() {
 			Password: c.TransmissionPassword,
 		}
 	}
+
+	//Debugging 'cause I'm a dummy and set env variables wrong all the time
+	log.Printf("config: %+v\n", c)
+	log.Printf("user: %+v\n", user)
 
 	client := transmission.New(c.TransmissionAddr, user)
 

@@ -1,17 +1,23 @@
-# Transmission Exporter for Prometheus [![Build Status](https://cloud.drone.io/api/badges/metalmatze/transmission-exporter/status.svg)](https://cloud.drone.io/metalmatze/transmission-exporter)
+# Transmission Exporter for Prometheus
 
-[![Docker Pulls](https://img.shields.io/docker/pulls/metalmatze/transmission-exporter.svg?maxAge=604800)](https://hub.docker.com/r/metalmatze/transmission-exporter)
-[![Go Report Card](https://goreportcard.com/badge/github.com/metalmatze/transmission-exporter)](https://goreportcard.com/report/github.com/metalmatze/transmission-exporter)
+Prometheus exporter for [Transmission](https://transmissionbt.com/) metrics, written in Go.  This is a fork of Metalmatze's tranmission exporter. I fixed a few things and removed others to make my life easier.
 
-Prometheus exporter for [Transmission](https://transmissionbt.com/) metrics, written in Go.
+## Changes done
+- The [Dockerfile](./Dockerfile) was changed to build the transmission-exporter binary during `docker build` step. Previously it seems it the Go binary was expected to be build outside the Dockerfile 
+- Removed .env support -- now only environment variables can be used to configure the exporter
+- Added some debugging and an argument check on [main.go](./cmd/transmission-exporter/main.go) 'cause I mess up environment variables sometimes 
 
-# LOOKING FOR MAINTAINERS
-I don't use this exporter anymore and I'd be happy if others would want to take over and maintain it in the future!  
-Write me a DM via [Twitter](https://twitter.com/metalmatze)!
-
-### Installation
-
-    $ go get github.com/metalmatze/transmission-exporter
+### Building and launching it with Docker
+```shell
+docker build . -t transmission-exporter
+docker run \
+    -p 19091:19091 \
+    -e TRANSMISSION_ADDR='http://192.168.1.112:9091' \
+    -e TRANSMISSION_USERNAME=transmission \
+    -e TRANSMISSION_PASSWORD=transmission \
+    transmission-exporter
+```
+Be sure to change your parameters to point to your transmission instance. `http://192.168.1.112:9091` is an address on my network, you certainly want to change that.  Consider adding `-d` and `--restart unless-stopped` to the `docker run` above if you want the container to keep running across system restarts (aka as a service)
 
 ### Configuration
 
@@ -23,53 +29,12 @@ ENV Variable | Description
 | TRANSMISSION_USERNAME | Transmission username, no default |
 | TRANSMISSION_PASSWORD | Transmission password, no default |
 
-### Docker
-
-    docker pull metalmatze/transmission-exporter
-    docker run -d -p 19091:19091 metalmatze/transmission-exporter
-
-### Kubernetes (Prometheus)
-
-A sample kubernetes manifest is available in [example/kubernetes](https://github.com/metalmatze/transmission-exporter/blob/master/examples/kubernetes/docker-compose.yml)
-
-Please run: `kubectl apply -f examples/kubernetes/transmission.yml`
-
-You should:
-* Attach the config and downloads volume
-* Configure the password for the exporter
-
-Your prometheus instance will start scraping the metrics automatically. (if configured with annotation based discovery). [more info](https://www.weave.works/docs/cloud/latest/tasks/monitor/configuration-k8s/)
-
-### Docker Compose
-
-Example `docker-compose.yml` with Transmission also running in docker.
-
-    transmission:
-      image: linuxserver/transmission
-      restart: always
-      ports:
-        - "127.0.0.1:9091:9091"
-        - "51413:51413"
-        - "51413:51413/udp"
-    transmission-exporter:
-      image: metalmatze/transmission-exporter
-      restart: always
-      links:
-        - transmission
-      ports:
-        - "127.0.0.1:19091:19091"
-      environment:
-        TRANSMISSION_ADDR: http://transmission:9091
-
 ### Development
-
-    make
-
-For development we encourage you to use `make install` instead, it's faster.
-
-Now simply copy the `.env.example` to `.env`, like `cp .env.example .env` and set your preferences.
-Now you're good to go.
+Use docker! (see above)
 
 ### Original authors of the Transmission package  
 Tobias Blom (https://github.com/tubbebubbe/transmission)  
 Long Nguyen (https://github.com/longnguyen11288/go-transmission)
+
+### Special thanks from Daniel
+Matthias Loibl - [metalmatze](https://github.com/metalmatze/)
